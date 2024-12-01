@@ -55,11 +55,16 @@ app.post("/api/compress", upload.single("video"), (req, res) => {
     .output(compressedFilePath)
     .videoCodec("libx264")
     .audioCodec("aac")
-    .outputOptions("-crf 18") // Increase CRF to reduce file size
-    .outputOptions("-preset medium") // Balance between compression and speed
-    .outputOptions("-b:v 1000k") // Reduce video bitrate
-    .outputOptions("-b:a 96k") // Reduce audio bitrate
-    .size("854x?") // Reduce resolution while maintaining aspect ratio
+    .outputOptions("-crf 30") // Higher CRF for better compression
+    .outputOptions("-preset medium") // Better compression, slower
+    .outputOptions("-b:v 500k") // Lower video bitrate
+    .outputOptions("-b:a 64k") // Lower audio bitrate
+    //  .videoFilters("scale=iw*0.3:ih*0.3") // Reduce resolution to 50%
+    .videoFilters("scale=trunc(iw*0.9/2)*2:trunc(ih*0.9/2)*2")
+
+    .on("progress", progress => {
+      console.log("Compression progress:", progress);
+    })
     .on("end", () => {
       console.log("Compression completed successfully.");
       fs.unlinkSync(filePath); // Clean up the original file
